@@ -91,9 +91,11 @@ type LNK struct {
 		Ctrl  bool
 		Alt   bool
 	}
-	Reserved1    uint16
-	Reserved2    uint32
-	Reserved3    uint32
+	Reserved1  uint16
+	Reserved2  uint32
+	Reserved3  uint32
+	IDListSize uint16
+	IDList     []byte
 }
 
 // ErrInvalidHeaderSize is returned when the header size is not 76.
@@ -286,6 +288,21 @@ func Parse(file io.Reader) (lnk *LNK, err error) {
 
 	if lnk.Reserved1 != 0 || lnk.Reserved2 != 0 || lnk.Reserved3 != 0 {
 		return lnk, ErrReservedBitSet
+	}
+
+	if lnk.HasTargetIDList {
+		err = binary.Read(file, endianness, &lnk.IDListSize)
+
+		if err != nil {
+			return
+		}
+
+		lnk.IDList = make([]byte, lnk.IDListSize)
+		_, err = file.Read(lnk.IDList)
+
+		if err != nil {
+			return
+		}
 	}
 
 	return
