@@ -61,6 +61,8 @@ type LNK struct {
 	CreationTime     time.Time
 	AccessTimeNano   int64
 	AccessTime       time.Time
+	WriteTimeNano    int64
+	WriteTime        time.Time
 }
 
 // ErrInvalidHeaderSize is returned when the header size is not 76.
@@ -175,6 +177,13 @@ func Parse(file io.Reader) (lnk *LNK, err error) {
 	}
 
 	lnk.AccessTime = windowsNanoToTime(lnk.AccessTimeNano)
+	err = binary.Read(file, endianness, &lnk.WriteTimeNano)
+
+	if err != nil {
+		return
+	}
+
+	lnk.WriteTime = windowsNanoToTime(lnk.WriteTimeNano)
 
 	return
 }
