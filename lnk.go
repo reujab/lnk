@@ -64,6 +64,9 @@ type LNK struct {
 	WriteTimeNano    uint64
 	WriteTime        time.Time
 	FileSize         uint32
+	// documentation says this should be signed, but I can't test this so it will
+	// say unsigned
+	IconIndex uint32
 }
 
 // ErrInvalidHeaderSize is returned when the header size is not 76.
@@ -186,6 +189,12 @@ func Parse(file io.Reader) (lnk *LNK, err error) {
 
 	lnk.WriteTime = windowsNanoToTime(lnk.WriteTimeNano)
 	err = binary.Read(file, endianness, &lnk.FileSize)
+
+	if err != nil {
+		return
+	}
+
+	err = binary.Read(file, endianness, &lnk.IconIndex)
 
 	if err != nil {
 		return
