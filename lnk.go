@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"io"
+	"time"
 )
 
 // LNK represents the parsed information in a .lnk file.
@@ -56,6 +57,8 @@ type LNK struct {
 		NotContentIndexed bool
 		Encrypted         bool
 	}
+	CreationTimeNano int64
+	CreationTime     time.Time
 }
 
 // ErrInvalidHeaderSize is returned when the header size is not 76.
@@ -156,5 +159,25 @@ func Parse(file io.Reader) (lnk *LNK, err error) {
 		return lnk, ErrReservedBitSet
 	}
 
+	err = binary.Read(file, endianness, &lnk.CreationTimeNano)
+
+	if err != nil {
+		return
+	}
+
+	lnk.CreationTime = windowsNanoToTime(lnk.CreationTimeNano)
+
 	return
+}
+
+// The Windows epoch is 1601-01-01, while the Unix epoch is 1970-01-01.
+func windowsNanoToTime(windowsNano int64) time.Time {
+	// fmt.Println(time.Unix((windowsNano-116444736000000000)/10000000, 0))
+	// fmt.Println(time.Unix(0, 1000000000*((windowsNano-116444736000000000)/10000000)))
+	// fmt.Println(time.Unix(0, 100*windowsNano-11644473600000000000))
+	// most accurate method
+	// fmt.Println(time.Unix(0, 100*(windowsNano-116444736000000000)))
+
+	// this converts the Windows nanoseconds to Unix nanoseconds
+	return time.Unix(0, 100*(windowsNano-116444736000000000))
 }
