@@ -9,10 +9,10 @@ import (
 
 // LNK represents the parsed information in a .lnk file.
 type LNK struct {
-	HeaderSize int32
+	HeaderSize uint32
 	CLSID      [16]byte
 	// For more information, view https://msdn.microsoft.com/en-us/library/dd891314.aspx or https://github.com/libyal/liblnk/blob/15ec0a6ea940e79048ceee71861546485c4ab6d8/documentation/Windows%20Shortcut%20File%20%28LNK%29%20format.asciidoc#21-data-flags.
-	LinkFlags                   int32
+	LinkFlags                   uint32
 	HasTargetIDList             bool
 	HasLinkInfo                 bool
 	HasName                     bool
@@ -38,7 +38,7 @@ type LNK struct {
 	UnaliasOnSave               bool
 	PreferEnvironmentPath       bool
 	KeepLocalIDListForUNCTarget bool
-	FileAttributes              int32
+	FileAttributes              uint32
 	// For more information, view https://msdn.microsoft.com/en-us/library/dd871338.aspx or https://github.com/libyal/liblnk/blob/15ec0a6ea940e79048ceee71861546485c4ab6d8/documentation/Windows%20Shortcut%20File%20%28LNK%29%20format.asciidoc#file_attribute_flags.
 	FileAttribute struct {
 		ReadOnly          bool
@@ -57,11 +57,11 @@ type LNK struct {
 		NotContentIndexed bool
 		Encrypted         bool
 	}
-	CreationTimeNano int64
+	CreationTimeNano uint64
 	CreationTime     time.Time
-	AccessTimeNano   int64
+	AccessTimeNano   uint64
 	AccessTime       time.Time
-	WriteTimeNano    int64
+	WriteTimeNano    uint64
 	WriteTime        time.Time
 }
 
@@ -189,7 +189,7 @@ func Parse(file io.Reader) (lnk *LNK, err error) {
 }
 
 // The Windows epoch is 1601-01-01, while the Unix epoch is 1970-01-01.
-func windowsNanoToTime(windowsNano int64) time.Time {
+func windowsNanoToTime(windowsNano uint64) time.Time {
 	// fmt.Println(time.Unix((windowsNano-116444736000000000)/10000000, 0))
 	// fmt.Println(time.Unix(0, 1000000000*((windowsNano-116444736000000000)/10000000)))
 	// fmt.Println(time.Unix(0, 100*windowsNano-11644473600000000000))
@@ -197,5 +197,5 @@ func windowsNanoToTime(windowsNano int64) time.Time {
 	// fmt.Println(time.Unix(0, 100*(windowsNano-116444736000000000)))
 
 	// this converts the Windows nanoseconds to Unix nanoseconds
-	return time.Unix(0, 100*(windowsNano-116444736000000000))
+	return time.Unix(0, int64(100*windowsNano-11644473600000000000))
 }
