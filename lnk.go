@@ -7,6 +7,18 @@ import (
 	"time"
 )
 
+// ShowNormal is the value of LNK.ShowCommand when the application should be
+// opened normally.
+const ShowNormal = 1
+
+// ShowMaximized is the value of LNK.ShowCommand when the application should be
+// opened maximized.
+const ShowMaximized = 3
+
+// ShowMinNoActive is the value of LNK.ShowCommand when the application should
+// be opened minimized.
+const ShowMinNoActive = 7
+
 // LNK represents the parsed information in a .lnk file.
 type LNK struct {
 	HeaderSize uint32
@@ -67,6 +79,9 @@ type LNK struct {
 	// documentation says this should be signed, but I can't test this so it will
 	// say unsigned
 	IconIndex uint32
+	// If ShowCommand does not equal ShowNormal, ShowMaximized, or
+	// ShowMinNoActive, ShowCommand must be treated as ShowNormal.
+	ShowCommand uint32
 }
 
 // ErrInvalidHeaderSize is returned when the header size is not 76.
@@ -195,6 +210,12 @@ func Parse(file io.Reader) (lnk *LNK, err error) {
 	}
 
 	err = binary.Read(file, endianness, &lnk.IconIndex)
+
+	if err != nil {
+		return
+	}
+
+	err = binary.Read(file, endianness, &lnk.ShowCommand)
 
 	if err != nil {
 		return
