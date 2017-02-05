@@ -91,6 +91,9 @@ type LNK struct {
 		Ctrl  bool
 		Alt   bool
 	}
+	Reserved1    uint16
+	Reserved2    uint32
+	Reserved3    uint32
 }
 
 // ErrInvalidHeaderSize is returned when the header size is not 76.
@@ -262,6 +265,28 @@ func Parse(file io.Reader) (lnk *LNK, err error) {
 	lnk.HotKey.Shift = lnk.HotKeyHighByte&1 != 0
 	lnk.HotKey.Ctrl = lnk.HotKeyHighByte&2 != 0
 	lnk.HotKey.Alt = lnk.HotKeyHighByte&4 != 0
+
+	err = binary.Read(file, endianness, &lnk.Reserved1)
+
+	if err != nil {
+		return
+	}
+
+	err = binary.Read(file, endianness, &lnk.Reserved2)
+
+	if err != nil {
+		return
+	}
+
+	err = binary.Read(file, endianness, &lnk.Reserved3)
+
+	if err != nil {
+		return
+	}
+
+	if lnk.Reserved1 != 0 || lnk.Reserved2 != 0 || lnk.Reserved3 != 0 {
+		return lnk, ErrReservedBitSet
+	}
 
 	return
 }
