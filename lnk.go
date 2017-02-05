@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"errors"
 	"io"
+	"strconv"
 	"time"
 )
 
@@ -81,7 +82,15 @@ type LNK struct {
 	IconIndex uint32
 	// If ShowCommand does not equal ShowNormal, ShowMaximized, or
 	// ShowMinNoActive, ShowCommand must be treated as ShowNormal.
-	ShowCommand uint32
+	ShowCommand    uint32
+	HotKeyLowByte  byte
+	HotKeyHighByte byte
+	HotKey         struct {
+		Key   string
+		Shift bool
+		Ctrl  bool
+		Alt   bool
+	}
 }
 
 // ErrInvalidHeaderSize is returned when the header size is not 76.
@@ -92,6 +101,9 @@ var ErrInvalidCLSID = errors.New("invalid CLSID")
 
 // ErrReservedBitSet is returned when a reserved bit is set
 var ErrReservedBitSet = errors.New("reserved bit set")
+
+// ErrInvalidHotKey is returned when the hotkey low byte is invalid
+var ErrInvalidHotKey = errors.New("invalid hotkey")
 
 var endianness = binary.LittleEndian
 var validCLSID = [...]byte{
@@ -220,6 +232,36 @@ func Parse(file io.Reader) (lnk *LNK, err error) {
 	if err != nil {
 		return
 	}
+
+	err = binary.Read(file, endianness, &lnk.HotKeyLowByte)
+
+	if err != nil {
+		return
+	}
+
+	err = binary.Read(file, endianness, &lnk.HotKeyHighByte)
+
+	if err != nil {
+		return
+	}
+
+	if lnk.HotKeyLowByte < 0x30 || (lnk.HotKeyLowByte > 0x39 && lnk.HotKeyLowByte < 0x41) || (lnk.HotKeyLowByte > 0x5a && lnk.HotKeyLowByte < 0x70) || (lnk.HotKeyLowByte > 0x87 && lnk.HotKeyLowByte < 0x90) || lnk.HotKeyLowByte > 0x91 {
+		return lnk, ErrInvalidHotKey
+	}
+
+	if lnk.HotKeyLowByte >= 0x70 && lnk.HotKeyLowByte <= 0x87 {
+		lnk.HotKey.Key = "F" + strconv.Itoa(int(lnk.HotKeyLowByte-0x6f))
+	} else if lnk.HotKeyLowByte == 0x90 {
+		lnk.HotKey.Key = "NumLk"
+	} else if lnk.HotKeyLowByte == 0x91 {
+		lnk.HotKey.Key = "ScrLK"
+	} else {
+		lnk.HotKey.Key = string(lnk.HotKeyLowByte)
+	}
+
+	lnk.HotKey.Shift = lnk.HotKeyHighByte&1 != 0
+	lnk.HotKey.Ctrl = lnk.HotKeyHighByte&2 != 0
+	lnk.HotKey.Alt = lnk.HotKeyHighByte&4 != 0
 
 	return
 }
