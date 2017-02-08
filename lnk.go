@@ -1,6 +1,7 @@
 package lnk
 
 import (
+	"bufio"
 	"encoding/binary"
 	"errors"
 	"io"
@@ -91,11 +92,29 @@ type LNK struct {
 		Ctrl  bool
 		Alt   bool
 	}
-	Reserved1  uint16
-	Reserved2  uint32
-	Reserved3  uint32
-	IDListSize uint16
-	IDList     []byte
+	Reserved1                              uint16
+	Reserved2                              uint32
+	Reserved3                              uint32
+	IDListSize                             uint16
+	IDList                                 []byte
+	LinkInfoSize                           uint32
+	LinkInfoHeaderSize                     uint32
+	LinkInfoFlags                          uint32
+	VolumeIDAndLocalBasePath               bool
+	CommonNetworkRelativeLinkAndPathSuffix bool
+	VolumeIDOffset                         uint32
+	LocalBasePathOffset                    uint32
+	CommonNetworkRelativeLinkOffset        uint32
+	CommonPathSuffixOffset                 uint32
+	LocalBasePathOffsetUnicode             uint32
+	CommonPathSuffixOffsetUnicode          uint32
+	VolumeIDSize                           uint32
+	DriveType                              uint32
+	DriveSerialNumber                      uint32
+	VolumeLabelOffset                      uint32
+	VolumeLabelOffsetUnicode               uint32
+	VolumeLabel                            string
+	LocalBasePath                          string
 }
 
 // ErrInvalidHeaderSize is returned when the header size is not 76.
@@ -302,6 +321,117 @@ func Parse(file io.Reader) (lnk *LNK, err error) {
 
 		if err != nil {
 			return
+		}
+	}
+
+	if lnk.HasLinkInfo {
+		err = binary.Read(file, endianness, &lnk.LinkInfoSize)
+
+		if err != nil {
+			return
+		}
+
+		err = binary.Read(file, endianness, &lnk.LinkInfoHeaderSize)
+
+		if err != nil {
+			return
+		}
+
+		err = binary.Read(file, endianness, &lnk.LinkInfoFlags)
+
+		if err != nil {
+			return
+		}
+
+		lnk.VolumeIDAndLocalBasePath = lnk.LinkInfoFlags&1 != 0
+		lnk.CommonNetworkRelativeLinkAndPathSuffix = lnk.LinkInfoFlags&2 != 0
+
+		err = binary.Read(file, endianness, &lnk.VolumeIDOffset)
+
+		if err != nil {
+			return
+		}
+
+		err = binary.Read(file, endianness, &lnk.LocalBasePathOffset)
+
+		if err != nil {
+			return
+		}
+
+		err = binary.Read(file, endianness, &lnk.CommonNetworkRelativeLinkOffset)
+
+		if err != nil {
+			return
+		}
+
+		err = binary.Read(file, endianness, &lnk.CommonPathSuffixOffset)
+
+		if err != nil {
+			return
+		}
+
+		if lnk.LinkInfoHeaderSize > 28 {
+			err = binary.Read(file, endianness, &lnk.LocalBasePathOffsetUnicode)
+
+			if err != nil {
+				return
+			}
+		}
+
+		if lnk.LinkInfoHeaderSize > 32 {
+			err = binary.Read(file, endianness, &lnk.CommonPathSuffixOffsetUnicode)
+
+			if err != nil {
+				return
+			}
+		}
+
+		if lnk.VolumeIDAndLocalBasePath {
+			err = binary.Read(file, endianness, &lnk.VolumeIDSize)
+
+			if err != nil {
+				return
+			}
+
+			err = binary.Read(file, endianness, &lnk.DriveType)
+
+			if err != nil {
+				return
+			}
+
+			err = binary.Read(file, endianness, &lnk.DriveSerialNumber)
+
+			if err != nil {
+				return
+			}
+
+			err = binary.Read(file, endianness, &lnk.VolumeLabelOffset)
+
+			if err != nil {
+				return
+			}
+
+			if lnk.VolumeLabelOffset > 16 {
+				err = binary.Read(file, endianness, &lnk.VolumeLabelOffsetUnicode)
+
+				if err != nil {
+					return
+				}
+			}
+
+			reader := bufio.NewReader(file)
+
+			lnk.VolumeLabel, err = reader.ReadString('\x00')
+
+			if err != nil {
+				return
+			}
+
+			lnk.LocalBasePath, err = reader.ReadString('\x00')
+
+			if err != nil {
+				return
+			}
 		}
 	}
 
