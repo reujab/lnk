@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"encoding/binary"
 	"errors"
-	"io"
 	"strings"
 )
 
@@ -23,8 +22,7 @@ var (
 )
 
 // Open parses an io.Reader into a LNK.
-func Open(file io.Reader) (*LNK, error) {
-	reader := bufio.NewReader(file)
+func Open(file *bufio.Reader) (*LNK, error) {
 	lnk := new(LNK)
 
 	var headerSize uint32
@@ -271,13 +269,13 @@ func Open(file io.Reader) (*LNK, error) {
 				}
 			}
 
-			lnk.VolumeLabel, err = reader.ReadString('\x00')
+			lnk.VolumeLabel, err = file.ReadString('\x00')
 			if err != nil {
 				return lnk, err
 			}
 			lnk.VolumeLabel = strings.Trim(lnk.VolumeLabel, "\x00")
 
-			lnk.LocalBasePath, err = reader.ReadString('\x00')
+			lnk.LocalBasePath, err = file.ReadString('\x00')
 			if err != nil {
 				return lnk, err
 			}
