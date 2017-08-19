@@ -29,7 +29,6 @@ const (
 // https://github.com/libyal/liblnk/blob/15ec0a6ea940e79048ceee71861546485c4ab6d8/documentation/Windows%20Shortcut%20File%20%28LNK%29%20format.asciidoc
 type LNK struct {
 	// ShellLinkHeader
-	LinkFlags                   uint32
 	HasTargetIDList             bool
 	HasLinkInfo                 bool
 	HasName                     bool
@@ -55,27 +54,24 @@ type LNK struct {
 	UnaliasOnSave               bool
 	PreferEnvironmentPath       bool
 	KeepLocalIDListForUNCTarget bool
-	FileAttributes              uint32
-	FileAttribute               struct {
-		ReadOnly          bool
-		Hidden            bool
-		System            bool
-		Directory         bool
-		Archive           bool
-		Normal            bool
-		Temporary         bool
-		SparseFile        bool
-		ReparsePoint      bool
-		Compressed        bool
-		Offline           bool
-		NotContentIndexed bool
-		Encrypted         bool
-	}
-	CreationTime time.Time
-	AccessTime   time.Time
-	WriteTime    time.Time
-	FileSize     uint32
-	IconIndex    int32
+	ReadOnly                    bool
+	Hidden                      bool
+	System                      bool
+	Directory                   bool
+	Archive                     bool
+	Normal                      bool
+	Temporary                   bool
+	SparseFile                  bool
+	ReparsePoint                bool
+	Compressed                  bool
+	Offline                     bool
+	NotContentIndexed           bool
+	Encrypted                   bool
+	CreationTime                time.Time
+	AccessTime                  time.Time
+	WriteTime                   time.Time
+	FileSize                    uint32
+	IconIndex                   int32
 	// If ShowCommand does not equal ShowNormal, ShowMaximized, or
 	// ShowMinNoActive, ShowCommand must be treated as ShowNormal.
 	ShowCommand uint32
@@ -86,7 +82,6 @@ type LNK struct {
 	// LinkInfo
 	LinkInfoSize                           uint32
 	LinkInfoHeaderSize                     uint32
-	LinkInfoFlags                          uint32
 	VolumeIDAndLocalBasePath               bool
 	CommonNetworkRelativeLinkAndPathSuffix bool
 	VolumeIDOffset                         uint32
@@ -185,58 +180,60 @@ func Open(file io.Reader) (*LNK, error) {
 		return lnk, ErrInvalidCLSID
 	}
 
-	err = binary.Read(file, endianness, &lnk.LinkFlags)
+	var linkFlags uint32
+	err = binary.Read(file, endianness, &linkFlags)
 	if err != nil {
 		return lnk, err
 	}
-	lnk.HasTargetIDList = lnk.LinkFlags&0x00000001 != 0
-	lnk.HasLinkInfo = lnk.LinkFlags&0x00000002 != 0
-	lnk.HasName = lnk.LinkFlags&0x00000004 != 0
-	lnk.HasRelativePath = lnk.LinkFlags&0x00000008 != 0
-	lnk.HasWorkingDir = lnk.LinkFlags&0x00000010 != 0
-	lnk.HasArguments = lnk.LinkFlags&0x00000020 != 0
-	lnk.HasIconLocation = lnk.LinkFlags&0x00000040 != 0
-	lnk.IsUnicode = lnk.LinkFlags&0x00000080 != 0
-	lnk.ForceNoLinkInfo = lnk.LinkFlags&0x00000100 != 0
-	lnk.HasExpString = lnk.LinkFlags&0x00000200 != 0
-	lnk.RunInSeperateProcess = lnk.LinkFlags&0x00000400 != 0
+	lnk.HasTargetIDList = linkFlags&0x00000001 != 0
+	lnk.HasLinkInfo = linkFlags&0x00000002 != 0
+	lnk.HasName = linkFlags&0x00000004 != 0
+	lnk.HasRelativePath = linkFlags&0x00000008 != 0
+	lnk.HasWorkingDir = linkFlags&0x00000010 != 0
+	lnk.HasArguments = linkFlags&0x00000020 != 0
+	lnk.HasIconLocation = linkFlags&0x00000040 != 0
+	lnk.IsUnicode = linkFlags&0x00000080 != 0
+	lnk.ForceNoLinkInfo = linkFlags&0x00000100 != 0
+	lnk.HasExpString = linkFlags&0x00000200 != 0
+	lnk.RunInSeperateProcess = linkFlags&0x00000400 != 0
 	// Unused1
-	lnk.HasDarwinID = lnk.LinkFlags&0x00001000 != 0
-	lnk.RunAsUser = lnk.LinkFlags&0x00002000 != 0
-	lnk.HasExpIcon = lnk.LinkFlags&0x00004000 != 0
-	lnk.NoPidlAlias = lnk.LinkFlags&0x00008000 != 0
+	lnk.HasDarwinID = linkFlags&0x00001000 != 0
+	lnk.RunAsUser = linkFlags&0x00002000 != 0
+	lnk.HasExpIcon = linkFlags&0x00004000 != 0
+	lnk.NoPidlAlias = linkFlags&0x00008000 != 0
 	// Unused2
-	lnk.RunWithShimLayer = lnk.LinkFlags&0x00020000 != 0
-	lnk.ForceNoLinkTrack = lnk.LinkFlags&0x00040000 != 0
-	lnk.EnableTargetMetadata = lnk.LinkFlags&0x00080000 != 0
-	lnk.DisableLinkPathTracking = lnk.LinkFlags&0x00100000 != 0
-	lnk.DisableKnownFolderTracking = lnk.LinkFlags&0x00200000 != 0
-	lnk.DisableKnownFolderAlias = lnk.LinkFlags&0x00400000 != 0
-	lnk.AllowLinkToLink = lnk.LinkFlags&0x00800000 != 0
-	lnk.UnaliasOnSave = lnk.LinkFlags&0x01000000 != 0
-	lnk.PreferEnvironmentPath = lnk.LinkFlags&0x02000000 != 0
-	lnk.KeepLocalIDListForUNCTarget = lnk.LinkFlags&0x04000000 != 0
+	lnk.RunWithShimLayer = linkFlags&0x00020000 != 0
+	lnk.ForceNoLinkTrack = linkFlags&0x00040000 != 0
+	lnk.EnableTargetMetadata = linkFlags&0x00080000 != 0
+	lnk.DisableLinkPathTracking = linkFlags&0x00100000 != 0
+	lnk.DisableKnownFolderTracking = linkFlags&0x00200000 != 0
+	lnk.DisableKnownFolderAlias = linkFlags&0x00400000 != 0
+	lnk.AllowLinkToLink = linkFlags&0x00800000 != 0
+	lnk.UnaliasOnSave = linkFlags&0x01000000 != 0
+	lnk.PreferEnvironmentPath = linkFlags&0x02000000 != 0
+	lnk.KeepLocalIDListForUNCTarget = linkFlags&0x04000000 != 0
 
-	err = binary.Read(file, endianness, &lnk.FileAttributes)
+	var fileAttributes uint32
+	err = binary.Read(file, endianness, &fileAttributes)
 	if err != nil {
 		return lnk, err
 	}
-	lnk.FileAttribute.ReadOnly = lnk.FileAttributes&0x00000001 != 0
-	lnk.FileAttribute.Hidden = lnk.FileAttributes&0x00000002 != 0
-	lnk.FileAttribute.System = lnk.FileAttributes&0x00000004 != 0
+	lnk.ReadOnly = fileAttributes&0x00000001 != 0
+	lnk.Hidden = fileAttributes&0x00000002 != 0
+	lnk.System = fileAttributes&0x00000004 != 0
 	// Reserved1
-	lnk.FileAttribute.Directory = lnk.FileAttributes&0x00000010 != 0
-	lnk.FileAttribute.Archive = lnk.FileAttributes&0x00000020 != 0
+	lnk.Directory = fileAttributes&0x00000010 != 0
+	lnk.Archive = fileAttributes&0x00000020 != 0
 	// Reserved2
-	lnk.FileAttribute.Normal = lnk.FileAttributes&0x00000080 != 0
-	lnk.FileAttribute.Temporary = lnk.FileAttributes&0x00000100 != 0
-	lnk.FileAttribute.SparseFile = lnk.FileAttributes&0x00000200 != 0
-	lnk.FileAttribute.ReparsePoint = lnk.FileAttributes&0x00000400 != 0
-	lnk.FileAttribute.Compressed = lnk.FileAttributes&0x00000800 != 0
-	lnk.FileAttribute.Offline = lnk.FileAttributes&0x00001000 != 0
-	lnk.FileAttribute.NotContentIndexed = lnk.FileAttributes&0x00002000 != 0
-	lnk.FileAttribute.Encrypted = lnk.FileAttributes&0x00004000 != 0
-	if lnk.FileAttributes&0x00000008 != 0 || lnk.FileAttributes&0x00000040 != 0 {
+	lnk.Normal = fileAttributes&0x00000080 != 0
+	lnk.Temporary = fileAttributes&0x00000100 != 0
+	lnk.SparseFile = fileAttributes&0x00000200 != 0
+	lnk.ReparsePoint = fileAttributes&0x00000400 != 0
+	lnk.Compressed = fileAttributes&0x00000800 != 0
+	lnk.Offline = fileAttributes&0x00001000 != 0
+	lnk.NotContentIndexed = fileAttributes&0x00002000 != 0
+	lnk.Encrypted = fileAttributes&0x00004000 != 0
+	if fileAttributes&0x00000008 != 0 || fileAttributes&0x00000040 != 0 {
 		return lnk, ErrReservedBitSet
 	}
 
@@ -338,12 +335,13 @@ func Open(file io.Reader) (*LNK, error) {
 			return lnk, err
 		}
 
-		err = binary.Read(file, endianness, &lnk.LinkInfoFlags)
+		var linkInfoFlags uint32
+		err = binary.Read(file, endianness, &linkInfoFlags)
 		if err != nil {
 			return lnk, err
 		}
-		lnk.VolumeIDAndLocalBasePath = lnk.LinkInfoFlags&1 != 0
-		lnk.CommonNetworkRelativeLinkAndPathSuffix = lnk.LinkInfoFlags&2 != 0
+		lnk.VolumeIDAndLocalBasePath = linkInfoFlags&1 != 0
+		lnk.CommonNetworkRelativeLinkAndPathSuffix = linkInfoFlags&2 != 0
 
 		err = binary.Read(file, endianness, &lnk.VolumeIDOffset)
 		if err != nil {
