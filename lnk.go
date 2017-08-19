@@ -59,10 +59,8 @@ type LNK struct {
 		ReadOnly          bool
 		Hidden            bool
 		System            bool
-		Reserved1         bool
 		Directory         bool
 		Archive           bool
-		Reserved2         bool
 		Normal            bool
 		Temporary         bool
 		SparseFile        bool
@@ -88,9 +86,6 @@ type LNK struct {
 		Ctrl  bool
 		Alt   bool
 	}
-	Reserved1 uint16
-	Reserved2 uint32
-	Reserved3 uint32
 	// LinkTargetIDList
 	IDListSize  uint16
 	IDListBytes []byte
@@ -198,10 +193,10 @@ func Parse(file io.Reader) (*LNK, error) {
 	lnk.FileAttribute.ReadOnly = lnk.FileAttributes&0x00000001 != 0
 	lnk.FileAttribute.Hidden = lnk.FileAttributes&0x00000002 != 0
 	lnk.FileAttribute.System = lnk.FileAttributes&0x00000004 != 0
-	lnk.FileAttribute.Reserved1 = lnk.FileAttributes&0x00000008 != 0
+	// Reserved1
 	lnk.FileAttribute.Directory = lnk.FileAttributes&0x00000010 != 0
 	lnk.FileAttribute.Archive = lnk.FileAttributes&0x00000020 != 0
-	lnk.FileAttribute.Reserved2 = lnk.FileAttributes&0x00000040 != 0
+	// Reserved2
 	lnk.FileAttribute.Normal = lnk.FileAttributes&0x00000080 != 0
 	lnk.FileAttribute.Temporary = lnk.FileAttributes&0x00000100 != 0
 	lnk.FileAttribute.SparseFile = lnk.FileAttributes&0x00000200 != 0
@@ -210,7 +205,7 @@ func Parse(file io.Reader) (*LNK, error) {
 	lnk.FileAttribute.Offline = lnk.FileAttributes&0x00001000 != 0
 	lnk.FileAttribute.NotContentIndexed = lnk.FileAttributes&0x00002000 != 0
 	lnk.FileAttribute.Encrypted = lnk.FileAttributes&0x00004000 != 0
-	if lnk.FileAttribute.Reserved1 || lnk.FileAttribute.Reserved2 {
+	if lnk.FileAttributes&0x00000008 != 0 || lnk.FileAttributes&0x00000040 != 0 {
 		return lnk, ErrReservedBitSet
 	}
 
@@ -276,22 +271,25 @@ func Parse(file io.Reader) (*LNK, error) {
 	lnk.HotKey.Ctrl = lnk.HotKeyHighByte&2 != 0
 	lnk.HotKey.Alt = lnk.HotKeyHighByte&4 != 0
 
-	err = binary.Read(file, endianness, &lnk.Reserved1)
+	var reserved1 uint16
+	err = binary.Read(file, endianness, &reserved1)
 	if err != nil {
 		return lnk, err
 	}
 
-	err = binary.Read(file, endianness, &lnk.Reserved2)
+	var reserved2 uint32
+	err = binary.Read(file, endianness, &reserved2)
 	if err != nil {
 		return lnk, err
 	}
 
-	err = binary.Read(file, endianness, &lnk.Reserved3)
+	var reserved3 uint32
+	err = binary.Read(file, endianness, &reserved3)
 	if err != nil {
 		return lnk, err
 	}
 
-	if lnk.Reserved1 != 0 || lnk.Reserved2 != 0 || lnk.Reserved3 != 0 {
+	if reserved1 != 0 || reserved2 != 0 || reserved3 != 0 {
 		return lnk, ErrReservedBitSet
 	}
 
