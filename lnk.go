@@ -25,11 +25,11 @@ const (
 )
 
 // LNK represents the parsed information in a .lnk file.
+// See https://msdn.microsoft.com/en-us/library/dd891314.aspx and https://github.com/libyal/liblnk/blob/15ec0a6ea940e79048ceee71861546485c4ab6d8/documentation/Windows%20Shortcut%20File%20%28LNK%29%20format.asciidoc#21-data-flags.
 type LNK struct {
-	HeaderSize uint32
-	CLSID      [16]byte
-	// https://msdn.microsoft.com/en-us/library/dd891314.aspx
-	// https://github.com/libyal/liblnk/blob/15ec0a6ea940e79048ceee71861546485c4ab6d8/documentation/Windows%20Shortcut%20File%20%28LNK%29%20format.asciidoc#21-data-flags.
+	// ShellLinkHeader
+	HeaderSize                  uint32
+	CLSID                       [16]byte
 	LinkFlags                   uint32
 	HasTargetIDList             bool
 	HasLinkInfo                 bool
@@ -57,9 +57,7 @@ type LNK struct {
 	PreferEnvironmentPath       bool
 	KeepLocalIDListForUNCTarget bool
 	FileAttributes              uint32
-	// https://msdn.microsoft.com/en-us/library/dd871338.aspx
-	// https://github.com/libyal/liblnk/blob/15ec0a6ea940e79048ceee71861546485c4ab6d8/documentation/Windows%20Shortcut%20File%20%28LNK%29%20format.asciidoc#file_attribute_flags.
-	FileAttribute struct {
+	FileAttribute               struct {
 		ReadOnly          bool
 		Hidden            bool
 		System            bool
@@ -94,11 +92,13 @@ type LNK struct {
 		Ctrl  bool
 		Alt   bool
 	}
-	Reserved1                              uint16
-	Reserved2                              uint32
-	Reserved3                              uint32
-	IDListSize                             uint16
-	IDListBytes                            []byte
+	Reserved1 uint16
+	Reserved2 uint32
+	Reserved3 uint32
+	// LinkTargetIDList
+	IDListSize  uint16
+	IDListBytes []byte
+	// LinkInfo
 	LinkInfoSize                           uint32
 	LinkInfoHeaderSize                     uint32
 	LinkInfoFlags                          uint32
