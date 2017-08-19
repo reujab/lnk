@@ -78,9 +78,7 @@ type LNK struct {
 	AccessTime   time.Time
 	WriteTime    time.Time
 	FileSize     uint32
-	// documentation says this should be signed, but I can't test this so it will
-	// say unsigned
-	IconIndex uint32
+	IconIndex    int32
 	// If ShowCommand does not equal ShowNormal, ShowMaximized, or
 	// ShowMinNoActive, ShowCommand must be treated as ShowNormal.
 	ShowCommand    uint32
