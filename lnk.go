@@ -25,10 +25,9 @@ const (
 )
 
 // LNK represents the parsed information in a .lnk file.
-// https://msdn.microsoft.com/en-us/library/dd891253.aspx
-// https://github.com/libyal/liblnk/blob/15ec0a6ea940e79048ceee71861546485c4ab6d8/documentation/Windows%20Shortcut%20File%20%28LNK%29%20format.asciidoc
 type LNK struct {
-	// ShellLinkHeader
+	// ShellLinkHeader (https://msdn.microsoft.com/library/dd891343.aspx)
+	// LinkFlags (https://msdn.microsoft.com/library/dd891314.aspx)
 	HasTargetIDList             bool
 	HasLinkInfo                 bool
 	HasName                     bool
@@ -54,32 +53,35 @@ type LNK struct {
 	UnaliasOnSave               bool
 	PreferEnvironmentPath       bool
 	KeepLocalIDListForUNCTarget bool
-	ReadOnly                    bool
-	Hidden                      bool
-	System                      bool
-	Directory                   bool
-	Archive                     bool
-	Normal                      bool
-	Temporary                   bool
-	SparseFile                  bool
-	ReparsePoint                bool
-	Compressed                  bool
-	Offline                     bool
-	NotContentIndexed           bool
-	Encrypted                   bool
-	CreationTime                time.Time
-	AccessTime                  time.Time
-	WriteTime                   time.Time
-	FileSize                    uint32
-	IconIndex                   int32
-	// If ShowCommand does not equal ShowNormal, ShowMaximized, or
-	// ShowMinNoActive, ShowCommand must be treated as ShowNormal.
-	ShowCommand uint32
-	HotKey      HotKey
-	// LinkTargetIDList
-	IDListSize  uint16
+	// FileAttributes (https://msdn.microsoft.com/library/dd871338.aspx)
+	ReadOnly          bool
+	Hidden            bool
+	System            bool
+	Directory         bool
+	Archive           bool
+	Normal            bool
+	Temporary         bool
+	SparseFile        bool
+	ReparsePoint      bool
+	Compressed        bool
+	Offline           bool
+	NotContentIndexed bool
+	Encrypted         bool
+	// ShellLinkHeader (https://msdn.microsoft.com/library/dd891343.aspx)
+	CreationTime time.Time
+	AccessTime   time.Time
+	WriteTime    time.Time
+	FileSize     uint32
+	IconIndex    int32
+	ShowCommand  uint32
+	HotKey       HotKey
+
+	// LinkTargetIDList (https://msdn.microsoft.com/library/dd891268.aspx)
+	IDListSize uint16
+	// IDList (https://msdn.microsoft.com/library/dd871365.aspx)
 	IDListBytes []byte
-	// LinkInfo
+
+	// LinkInfo (https://msdn.microsoft.com/library/dd871404.aspx)
 	LinkInfoSize                           uint32
 	LinkInfoHeaderSize                     uint32
 	VolumeIDAndLocalBasePath               bool
@@ -90,13 +92,15 @@ type LNK struct {
 	CommonPathSuffixOffset                 uint32
 	LocalBasePathOffsetUnicode             uint32
 	CommonPathSuffixOffsetUnicode          uint32
-	VolumeIDSize                           uint32
-	DriveType                              uint32
-	DriveSerialNumber                      uint32
-	VolumeLabelOffset                      uint32
-	VolumeLabelOffsetUnicode               uint32
-	VolumeLabel                            string
-	LocalBasePath                          string
+	// VolumeID (https://msdn.microsoft.com/library/dd891327.aspx)
+	VolumeIDSize             uint32
+	DriveType                uint32
+	DriveSerialNumber        uint32
+	VolumeLabelOffset        uint32
+	VolumeLabelOffsetUnicode uint32
+	VolumeLabel              string
+	// LinkInfo (https://msdn.microsoft.com/library/dd871404.aspx)
+	LocalBasePath string
 }
 
 type HotKey struct {
