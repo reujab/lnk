@@ -178,11 +178,12 @@ func Open(file io.Reader) (*LNK, error) {
 	}
 
 	if lnk.HasTargetIDList {
-		err = binary.Read(file, endianness, &lnk.IDListSize)
+		var idListSize uint16
+		err = binary.Read(file, endianness, &idListSize)
 		if err != nil {
 			return lnk, err
 		}
-		lnk.IDListBytes = make([]byte, lnk.IDListSize)
+		lnk.IDListBytes = make([]byte, idListSize)
 		_, err = file.Read(lnk.IDListBytes)
 		if err != nil {
 			return lnk, err

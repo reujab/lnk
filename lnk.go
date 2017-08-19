@@ -73,7 +73,6 @@ type LNK struct {
 	HotKey       HotKey
 
 	// LinkTargetIDList (https://msdn.microsoft.com/library/dd891268.aspx)
-	IDListSize uint16
 	// IDList (https://msdn.microsoft.com/library/dd871365.aspx)
 	IDListBytes []byte
 
