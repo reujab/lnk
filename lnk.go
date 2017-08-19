@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -392,11 +393,13 @@ func Parse(file io.Reader) (*LNK, error) {
 			if err != nil {
 				return lnk, err
 			}
+			lnk.VolumeLabel = strings.Trim(lnk.VolumeLabel, "\x00")
 
 			lnk.LocalBasePath, err = reader.ReadString('\x00')
 			if err != nil {
 				return lnk, err
 			}
+			lnk.LocalBasePath = strings.Trim(lnk.LocalBasePath, "\x00")
 		}
 	}
 
