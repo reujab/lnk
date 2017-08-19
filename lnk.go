@@ -25,7 +25,8 @@ const (
 )
 
 // LNK represents the parsed information in a .lnk file.
-// See https://msdn.microsoft.com/en-us/library/dd891314.aspx and https://github.com/libyal/liblnk/blob/15ec0a6ea940e79048ceee71861546485c4ab6d8/documentation/Windows%20Shortcut%20File%20%28LNK%29%20format.asciidoc#21-data-flags.
+// https://msdn.microsoft.com/en-us/library/dd891253.aspx
+// https://github.com/libyal/liblnk/blob/15ec0a6ea940e79048ceee71861546485c4ab6d8/documentation/Windows%20Shortcut%20File%20%28LNK%29%20format.asciidoc
 type LNK struct {
 	// ShellLinkHeader
 	LinkFlags                   uint32
