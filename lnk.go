@@ -80,7 +80,6 @@ type LNK struct {
 	IDListBytes []byte
 
 	// LinkInfo (https://msdn.microsoft.com/library/dd871404.aspx)
-	LinkInfoSize                           uint32
 	LinkInfoHeaderSize                     uint32
 	VolumeIDAndLocalBasePath               bool
 	CommonNetworkRelativeLinkAndPathSuffix bool
