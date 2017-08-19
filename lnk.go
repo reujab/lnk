@@ -161,8 +161,8 @@ var validCLSID = [16]byte{
 	192, 0, 0, 0, 0, 0, 0, 70,
 }
 
-// Parse parses an io.Reader into a LNK.
-func Parse(file io.Reader) (*LNK, error) {
+// Open parses an io.Reader into a LNK.
+func Open(file io.Reader) (*LNK, error) {
 	reader := bufio.NewReader(file)
 	lnk := new(LNK)
 
