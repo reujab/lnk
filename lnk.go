@@ -28,8 +28,6 @@ const (
 // See https://msdn.microsoft.com/en-us/library/dd891314.aspx and https://github.com/libyal/liblnk/blob/15ec0a6ea940e79048ceee71861546485c4ab6d8/documentation/Windows%20Shortcut%20File%20%28LNK%29%20format.asciidoc#21-data-flags.
 type LNK struct {
 	// ShellLinkHeader
-	HeaderSize                  uint32
-	CLSID                       [16]byte
 	LinkFlags                   uint32
 	HasTargetIDList             bool
 	HasLinkInfo                 bool
@@ -133,7 +131,7 @@ var (
 
 var endianness = binary.LittleEndian
 
-var validCLSID = [...]byte{
+var validCLSID = [16]byte{
 	1, 20, 2, 0, 0, 0, 0, 0,
 	192, 0, 0, 0, 0, 0, 0, 70,
 }
@@ -143,19 +141,21 @@ func Parse(file io.Reader) (*LNK, error) {
 	reader := bufio.NewReader(file)
 	lnk := new(LNK)
 
-	err := binary.Read(file, endianness, &lnk.HeaderSize)
+	var headerSize uint32
+	err := binary.Read(file, endianness, &headerSize)
 	if err != nil {
 		return lnk, err
 	}
-	if lnk.HeaderSize != 76 {
+	if headerSize != 76 {
 		return lnk, ErrInvalidHeaderSize
 	}
 
-	_, err = file.Read(lnk.CLSID[:])
+	var clsid [16]byte
+	_, err = file.Read(clsid[:])
 	if err != nil {
 		return lnk, err
 	}
-	if lnk.CLSID != validCLSID {
+	if clsid != validCLSID {
 		return lnk, ErrInvalidCLSID
 	}
 
