@@ -21,6 +21,9 @@ const (
 )
 
 // LNK represents the parsed information in a .lnk file.
+// Conforms to protocol revision 3.0, published on 2017-06-01.
+//
+// https://msdn.microsoft.com/library/dd871305.aspx
 type LNK struct {
 	// ShellLinkHeader (https://msdn.microsoft.com/library/dd891343.aspx)
 	// LinkFlags (https://msdn.microsoft.com/library/dd891314.aspx)
