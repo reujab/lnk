@@ -77,15 +77,8 @@ type LNK struct {
 	IconIndex    int32
 	// If ShowCommand does not equal ShowNormal, ShowMaximized, or
 	// ShowMinNoActive, ShowCommand must be treated as ShowNormal.
-	ShowCommand    uint32
-	HotKeyLowByte  byte
-	HotKeyHighByte byte
-	HotKey         struct {
-		Key   string
-		Shift bool
-		Ctrl  bool
-		Alt   bool
-	}
+	ShowCommand uint32
+	HotKey      HotKey
 	// LinkTargetIDList
 	IDListSize  uint16
 	IDListBytes []byte
@@ -108,6 +101,43 @@ type LNK struct {
 	VolumeLabelOffsetUnicode               uint32
 	VolumeLabel                            string
 	LocalBasePath                          string
+}
+
+type HotKey struct {
+	// LowByte
+	Key byte
+
+	Shift bool
+	Ctrl  bool
+	Alt   bool
+}
+
+func (hotKey HotKey) String() string {
+	var str string
+
+	if hotKey.Shift {
+		str += "Shift+"
+	}
+
+	if hotKey.Ctrl {
+		str += "Ctrl+"
+	}
+
+	if hotKey.Alt {
+		str += "Alt+"
+	}
+
+	if hotKey.Key >= 0x70 && hotKey.Key <= 0x87 {
+		str += "F" + strconv.Itoa(int(hotKey.Key-0x6f))
+	} else if hotKey.Key == 0x90 {
+		str += "NumLk"
+	} else if hotKey.Key == 0x91 {
+		str += "ScrLK"
+	} else {
+		str += string(hotKey.Key)
+	}
+
+	return str
 }
 
 var (
@@ -245,31 +275,22 @@ func Parse(file io.Reader) (*LNK, error) {
 		return lnk, err
 	}
 
-	err = binary.Read(file, endianness, &lnk.HotKeyLowByte)
+	err = binary.Read(file, endianness, &lnk.HotKey.Key)
 	if err != nil {
 		return lnk, err
 	}
-
-	err = binary.Read(file, endianness, &lnk.HotKeyHighByte)
-	if err != nil {
-		return lnk, err
-	}
-
-	if lnk.HotKeyLowByte < 0x30 || (lnk.HotKeyLowByte > 0x39 && lnk.HotKeyLowByte < 0x41) || (lnk.HotKeyLowByte > 0x5a && lnk.HotKeyLowByte < 0x70) || (lnk.HotKeyLowByte > 0x87 && lnk.HotKeyLowByte < 0x90) || lnk.HotKeyLowByte > 0x91 {
+	if lnk.HotKey.Key < 0x30 || (lnk.HotKey.Key > 0x39 && lnk.HotKey.Key < 0x41) || (lnk.HotKey.Key > 0x5a && lnk.HotKey.Key < 0x70) || (lnk.HotKey.Key > 0x87 && lnk.HotKey.Key < 0x90) || lnk.HotKey.Key > 0x91 {
 		return lnk, ErrInvalidHotKey
 	}
-	if lnk.HotKeyLowByte >= 0x70 && lnk.HotKeyLowByte <= 0x87 {
-		lnk.HotKey.Key = "F" + strconv.Itoa(int(lnk.HotKeyLowByte-0x6f))
-	} else if lnk.HotKeyLowByte == 0x90 {
-		lnk.HotKey.Key = "NumLk"
-	} else if lnk.HotKeyLowByte == 0x91 {
-		lnk.HotKey.Key = "ScrLK"
-	} else {
-		lnk.HotKey.Key = string(lnk.HotKeyLowByte)
+
+	var highByte byte
+	err = binary.Read(file, endianness, &highByte)
+	if err != nil {
+		return lnk, err
 	}
-	lnk.HotKey.Shift = lnk.HotKeyHighByte&1 != 0
-	lnk.HotKey.Ctrl = lnk.HotKeyHighByte&2 != 0
-	lnk.HotKey.Alt = lnk.HotKeyHighByte&4 != 0
+	lnk.HotKey.Shift = highByte&0x01 != 0
+	lnk.HotKey.Ctrl = highByte&0x02 != 0
+	lnk.HotKey.Alt = highByte&0x04 != 0
 
 	var reserved1 uint16
 	err = binary.Read(file, endianness, &reserved1)
