@@ -192,9 +192,8 @@ func Open(file *bufio.Reader) (*LNK, error) {
 
 	// LinkInfo
 	if lnk.HasLinkInfo {
-		// unused
-		var linkInfoSize uint32
-		err = binary.Read(file, endianness, &linkInfoSize)
+		// LinkInfoSize
+		_, err = file.Discard(4)
 		if err != nil {
 			return lnk, err
 		}
