@@ -194,7 +194,7 @@ func Open(file *bufio.Reader) (*LNK, error) {
 	}
 
 	// LinkInfo
-	if lnk.HasLinkInfo {
+	if lnk.HasLinkInfo && !lnk.ForceNoLinkInfo {
 		// LinkInfoSize
 		_, err = file.Discard(4)
 		if err != nil {
