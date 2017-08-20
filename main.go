@@ -139,9 +139,13 @@ func (hotKey HotKey) String() string {
 
 var endianness = binary.LittleEndian
 
+// 00021401-0000-0000-C000-000000000046
 var validCLSID = [16]byte{
-	1, 20, 2, 0, 0, 0, 0, 0,
-	192, 0, 0, 0, 0, 0, 0, 70,
+	0x01, 0x14, 0x02, 0x00,
+	0x00, 0x00,
+	0x00, 0x00,
+	0xc0, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x46,
 }
 
 // The Windows epoch is 1601-01-01, while the Unix epoch is 1970-01-01.
