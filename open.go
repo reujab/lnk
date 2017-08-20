@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	// ErrInvalidHeaderSize is returned when the header size is not 76.
-	ErrInvalidHeaderSize = errors.New("invalid header size")
+	// ErrNotALink is returned when the header size is not 76.
+	ErrNotALink = errors.New("not a link")
 
 	// ErrInvalidCLSID is returned when the CLSID is not valid
 	ErrInvalidCLSID = errors.New("invalid CLSID")
@@ -35,7 +35,7 @@ func Open(file *bufio.Reader) (*LNK, error) {
 		return lnk, err
 	}
 	if headerSize != 76 {
-		return lnk, ErrInvalidHeaderSize
+		return lnk, ErrNotALink
 	}
 
 	var clsid [16]byte
