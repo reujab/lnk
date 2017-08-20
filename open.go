@@ -49,7 +49,7 @@ func Open(file *bufio.Reader) (*LNK, error) {
 	if err != nil {
 		return lnk, err
 	}
-	lnk.HasTargetIDList = linkFlags&(1<<0) != 0
+	hasTargetIDList := linkFlags&(1<<0) != 0
 	lnk.HasLinkInfo = linkFlags&(1<<1) != 0
 	lnk.HasName = linkFlags&(1<<2) != 0
 	lnk.HasRelativePath = linkFlags&(1<<3) != 0
@@ -177,7 +177,7 @@ func Open(file *bufio.Reader) (*LNK, error) {
 	}
 
 	// LinkTargetIDList
-	if lnk.HasTargetIDList {
+	if hasTargetIDList {
 		var idListSize uint16
 		err = binary.Read(file, endianness, &idListSize)
 		if err != nil {

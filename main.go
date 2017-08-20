@@ -27,7 +27,6 @@ const (
 type LNK struct {
 	// ShellLinkHeader (https://msdn.microsoft.com/library/dd891343.aspx)
 	// LinkFlags (https://msdn.microsoft.com/library/dd891314.aspx)
-	HasTargetIDList             bool
 	HasLinkInfo                 bool
 	HasName                     bool
 	HasRelativePath             bool
