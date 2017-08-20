@@ -25,6 +25,7 @@ var (
 func Open(file *bufio.Reader) (*LNK, error) {
 	lnk := new(LNK)
 
+	// ShellLinkHeader
 	var headerSize uint32
 	err := binary.Read(file, endianness, &headerSize)
 	if err != nil {
@@ -175,6 +176,7 @@ func Open(file *bufio.Reader) (*LNK, error) {
 		return lnk, ErrReservedBitSet
 	}
 
+	// LinkTargetIDList
 	if lnk.HasTargetIDList {
 		var idListSize uint16
 		err = binary.Read(file, endianness, &idListSize)
@@ -188,6 +190,7 @@ func Open(file *bufio.Reader) (*LNK, error) {
 		}
 	}
 
+	// LinkInfo
 	if lnk.HasLinkInfo {
 		// unused
 		var linkInfoSize uint32
