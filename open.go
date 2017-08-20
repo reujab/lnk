@@ -144,7 +144,7 @@ func Open(file *bufio.Reader) (*LNK, error) {
 	if err != nil {
 		return lnk, err
 	}
-	if lnk.HotKey.Key < 0x30 || (lnk.HotKey.Key > 0x39 && lnk.HotKey.Key < 0x41) || (lnk.HotKey.Key > 0x5a && lnk.HotKey.Key < 0x70) || (lnk.HotKey.Key > 0x87 && lnk.HotKey.Key < 0x90) || lnk.HotKey.Key > 0x91 {
+	if (lnk.HotKey.Key > 0x00 && lnk.HotKey.Key < 0x30) || (lnk.HotKey.Key > 0x39 && lnk.HotKey.Key < 0x41) || (lnk.HotKey.Key > 0x5a && lnk.HotKey.Key < 0x70) || (lnk.HotKey.Key > 0x87 && lnk.HotKey.Key < 0x90) || lnk.HotKey.Key > 0x91 {
 		return lnk, ErrInvalidHotKey
 	}
 
