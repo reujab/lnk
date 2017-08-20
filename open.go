@@ -19,6 +19,9 @@ var (
 
 	// ErrInvalidHotKey is returned when the hotkey low byte is invalid
 	ErrInvalidHotKey = errors.New("invalid hotkey")
+
+	// ErrInvalidSize is returned when a field has an invalid size
+	ErrInvalidSize = errors.New("invalid field size")
 )
 
 // Open parses an io.Reader into a LNK.
@@ -212,44 +215,54 @@ func Open(file *bufio.Reader) (*LNK, error) {
 		lnk.VolumeIDAndLocalBasePath = linkInfoFlags&(1<<0) != 0
 		lnk.CommonNetworkRelativeLinkAndPathSuffix = linkInfoFlags&(1<<1) != 0
 
-		err = binary.Read(file, endianness, &lnk.VolumeIDOffset)
+		// VolumeIDOffset
+		_, err = file.Discard(4)
 		if err != nil {
 			return lnk, err
 		}
 
-		err = binary.Read(file, endianness, &lnk.LocalBasePathOffset)
+		// LocalBasePathOffset
+		_, err = file.Discard(4)
 		if err != nil {
 			return lnk, err
 		}
 
-		err = binary.Read(file, endianness, &lnk.CommonNetworkRelativeLinkOffset)
+		// CommonNetworkRelativeLinkOffset
+		_, err = file.Discard(4)
 		if err != nil {
 			return lnk, err
 		}
 
-		err = binary.Read(file, endianness, &lnk.CommonPathSuffixOffset)
+		// CommonPathSuffixOffset
+		_, err = file.Discard(4)
 		if err != nil {
 			return lnk, err
 		}
 
 		if linkInfoHeaderSize > 28 {
-			err = binary.Read(file, endianness, &lnk.LocalBasePathOffsetUnicode)
+			// LocalBasePathOffsetUnicode
+			_, err = file.Discard(4)
 			if err != nil {
 				return lnk, err
 			}
 		}
 
 		if linkInfoHeaderSize > 32 {
-			err = binary.Read(file, endianness, &lnk.CommonPathSuffixOffsetUnicode)
+			// CommonPathSuffixOffsetUnicode
+			_, err = file.Discard(4)
 			if err != nil {
 				return lnk, err
 			}
 		}
 
 		if lnk.VolumeIDAndLocalBasePath {
-			err = binary.Read(file, endianness, &lnk.VolumeIDSize)
+			var volumeIDSize uint32
+			err = binary.Read(file, endianness, &volumeIDSize)
 			if err != nil {
 				return lnk, err
+			}
+			if volumeIDSize <= 0x00000010 {
+				return lnk, ErrInvalidSize
 			}
 
 			err = binary.Read(file, endianness, &lnk.DriveType)
@@ -262,13 +275,15 @@ func Open(file *bufio.Reader) (*LNK, error) {
 				return lnk, err
 			}
 
-			err = binary.Read(file, endianness, &lnk.VolumeLabelOffset)
+			var volumeLabelOffset uint32
+			err = binary.Read(file, endianness, &volumeLabelOffset)
 			if err != nil {
 				return lnk, err
 			}
 
-			if lnk.VolumeLabelOffset > 16 {
-				err = binary.Read(file, endianness, &lnk.VolumeLabelOffsetUnicode)
+			if volumeLabelOffset > 16 {
+				// VolumeLabelOffsetUnicode
+				_, err = file.Discard(4)
 				if err != nil {
 					return lnk, err
 				}

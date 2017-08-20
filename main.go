@@ -81,19 +81,10 @@ type LNK struct {
 	// LinkInfo (https://msdn.microsoft.com/library/dd871404.aspx)
 	VolumeIDAndLocalBasePath               bool
 	CommonNetworkRelativeLinkAndPathSuffix bool
-	VolumeIDOffset                         uint32
-	LocalBasePathOffset                    uint32
-	CommonNetworkRelativeLinkOffset        uint32
-	CommonPathSuffixOffset                 uint32
-	LocalBasePathOffsetUnicode             uint32
-	CommonPathSuffixOffsetUnicode          uint32
 	// VolumeID (https://msdn.microsoft.com/library/dd891327.aspx)
-	VolumeIDSize             uint32
-	DriveType                uint32
-	DriveSerialNumber        uint32
-	VolumeLabelOffset        uint32
-	VolumeLabelOffsetUnicode uint32
-	VolumeLabel              string
+	DriveType         uint32
+	DriveSerialNumber uint32
+	VolumeLabel       string
 	// LinkInfo (https://msdn.microsoft.com/library/dd871404.aspx)
 	LocalBasePath string
 }
