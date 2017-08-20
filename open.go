@@ -48,55 +48,55 @@ func Open(file *bufio.Reader) (*LNK, error) {
 	if err != nil {
 		return lnk, err
 	}
-	lnk.HasTargetIDList = linkFlags&0x00000001 != 0
-	lnk.HasLinkInfo = linkFlags&0x00000002 != 0
-	lnk.HasName = linkFlags&0x00000004 != 0
-	lnk.HasRelativePath = linkFlags&0x00000008 != 0
-	lnk.HasWorkingDir = linkFlags&0x00000010 != 0
-	lnk.HasArguments = linkFlags&0x00000020 != 0
-	lnk.HasIconLocation = linkFlags&0x00000040 != 0
-	lnk.IsUnicode = linkFlags&0x00000080 != 0
-	lnk.ForceNoLinkInfo = linkFlags&0x00000100 != 0
-	lnk.HasExpString = linkFlags&0x00000200 != 0
-	lnk.RunInSeperateProcess = linkFlags&0x00000400 != 0
+	lnk.HasTargetIDList = linkFlags&(1<<0) != 0
+	lnk.HasLinkInfo = linkFlags&(1<<1) != 0
+	lnk.HasName = linkFlags&(1<<2) != 0
+	lnk.HasRelativePath = linkFlags&(1<<3) != 0
+	lnk.HasWorkingDir = linkFlags&(1<<4) != 0
+	lnk.HasArguments = linkFlags&(1<<5) != 0
+	lnk.HasIconLocation = linkFlags&(1<<6) != 0
+	lnk.IsUnicode = linkFlags&(1<<7) != 0
+	lnk.ForceNoLinkInfo = linkFlags&(1<<8) != 0
+	lnk.HasExpString = linkFlags&(1<<9) != 0
+	lnk.RunInSeperateProcess = linkFlags&(1<<10) != 0
 	// Unused1
-	lnk.HasDarwinID = linkFlags&0x00001000 != 0
-	lnk.RunAsUser = linkFlags&0x00002000 != 0
-	lnk.HasExpIcon = linkFlags&0x00004000 != 0
-	lnk.NoPidlAlias = linkFlags&0x00008000 != 0
+	lnk.HasDarwinID = linkFlags&(1<<12) != 0
+	lnk.RunAsUser = linkFlags&(1<<13) != 0
+	lnk.HasExpIcon = linkFlags&(1<<14) != 0
+	lnk.NoPidlAlias = linkFlags&(1<<15) != 0
 	// Unused2
-	lnk.RunWithShimLayer = linkFlags&0x00020000 != 0
-	lnk.ForceNoLinkTrack = linkFlags&0x00040000 != 0
-	lnk.EnableTargetMetadata = linkFlags&0x00080000 != 0
-	lnk.DisableLinkPathTracking = linkFlags&0x00100000 != 0
-	lnk.DisableKnownFolderTracking = linkFlags&0x00200000 != 0
-	lnk.DisableKnownFolderAlias = linkFlags&0x00400000 != 0
-	lnk.AllowLinkToLink = linkFlags&0x00800000 != 0
-	lnk.UnaliasOnSave = linkFlags&0x01000000 != 0
-	lnk.PreferEnvironmentPath = linkFlags&0x02000000 != 0
-	lnk.KeepLocalIDListForUNCTarget = linkFlags&0x04000000 != 0
+	lnk.RunWithShimLayer = linkFlags&(1<<17) != 0
+	lnk.ForceNoLinkTrack = linkFlags&(1<<18) != 0
+	lnk.EnableTargetMetadata = linkFlags&(1<<19) != 0
+	lnk.DisableLinkPathTracking = linkFlags&(1<<20) != 0
+	lnk.DisableKnownFolderTracking = linkFlags&(1<<21) != 0
+	lnk.DisableKnownFolderAlias = linkFlags&(1<<22) != 0
+	lnk.AllowLinkToLink = linkFlags&(1<<23) != 0
+	lnk.UnaliasOnSave = linkFlags&(1<<24) != 0
+	lnk.PreferEnvironmentPath = linkFlags&(1<<25) != 0
+	lnk.KeepLocalIDListForUNCTarget = linkFlags&(1<<26) != 0
 
 	var fileAttributes uint32
 	err = binary.Read(file, endianness, &fileAttributes)
 	if err != nil {
 		return lnk, err
 	}
-	lnk.ReadOnly = fileAttributes&0x00000001 != 0
-	lnk.Hidden = fileAttributes&0x00000002 != 0
-	lnk.System = fileAttributes&0x00000004 != 0
+	lnk.ReadOnly = fileAttributes&(1<<0) != 0
+	lnk.Hidden = fileAttributes&(1<<1) != 0
+	lnk.System = fileAttributes&(1<<2) != 0
 	// Reserved1
-	lnk.Directory = fileAttributes&0x00000010 != 0
-	lnk.Archive = fileAttributes&0x00000020 != 0
+	lnk.Directory = fileAttributes&(1<<4) != 0
+	lnk.Archive = fileAttributes&(1<<5) != 0
 	// Reserved2
-	lnk.Normal = fileAttributes&0x00000080 != 0
-	lnk.Temporary = fileAttributes&0x00000100 != 0
-	lnk.SparseFile = fileAttributes&0x00000200 != 0
-	lnk.ReparsePoint = fileAttributes&0x00000400 != 0
-	lnk.Compressed = fileAttributes&0x00000800 != 0
-	lnk.Offline = fileAttributes&0x00001000 != 0
-	lnk.NotContentIndexed = fileAttributes&0x00002000 != 0
-	lnk.Encrypted = fileAttributes&0x00004000 != 0
-	if fileAttributes&0x00000008 != 0 || fileAttributes&0x00000040 != 0 {
+	lnk.Normal = fileAttributes&(1<<7) != 0
+	lnk.Temporary = fileAttributes&(1<<8) != 0
+	lnk.SparseFile = fileAttributes&(1<<9) != 0
+	lnk.ReparsePoint = fileAttributes&(1<<10) != 0
+	lnk.Compressed = fileAttributes&(1<<11) != 0
+	lnk.Offline = fileAttributes&(1<<12) != 0
+	lnk.NotContentIndexed = fileAttributes&(1<<13) != 0
+	lnk.Encrypted = fileAttributes&(1<<14) != 0
+	if fileAttributes&(1<<3) != 0 || fileAttributes&(1<<6) != 0 {
 		return lnk, ErrReservedBitSet
 	}
 
@@ -149,9 +149,9 @@ func Open(file *bufio.Reader) (*LNK, error) {
 	if err != nil {
 		return lnk, err
 	}
-	lnk.HotKey.Shift = highByte&0x01 != 0
-	lnk.HotKey.Ctrl = highByte&0x02 != 0
-	lnk.HotKey.Alt = highByte&0x04 != 0
+	lnk.HotKey.Shift = highByte&(1<<0) != 0
+	lnk.HotKey.Ctrl = highByte&(1<<1) != 0
+	lnk.HotKey.Alt = highByte&(1<<2) != 0
 
 	var reserved1 uint16
 	err = binary.Read(file, endianness, &reserved1)
@@ -206,8 +206,8 @@ func Open(file *bufio.Reader) (*LNK, error) {
 		if err != nil {
 			return lnk, err
 		}
-		lnk.VolumeIDAndLocalBasePath = linkInfoFlags&1 != 0
-		lnk.CommonNetworkRelativeLinkAndPathSuffix = linkInfoFlags&2 != 0
+		lnk.VolumeIDAndLocalBasePath = linkInfoFlags&(1<<0) != 0
+		lnk.CommonNetworkRelativeLinkAndPathSuffix = linkInfoFlags&(1<<1) != 0
 
 		err = binary.Read(file, endianness, &lnk.VolumeIDOffset)
 		if err != nil {
