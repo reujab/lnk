@@ -198,7 +198,8 @@ func Open(file *bufio.Reader) (*LNK, error) {
 			return lnk, err
 		}
 
-		err = binary.Read(file, endianness, &lnk.LinkInfoHeaderSize)
+		var linkInfoHeaderSize uint32
+		err = binary.Read(file, endianness, &linkInfoHeaderSize)
 		if err != nil {
 			return lnk, err
 		}
@@ -231,14 +232,14 @@ func Open(file *bufio.Reader) (*LNK, error) {
 			return lnk, err
 		}
 
-		if lnk.LinkInfoHeaderSize > 28 {
+		if linkInfoHeaderSize > 28 {
 			err = binary.Read(file, endianness, &lnk.LocalBasePathOffsetUnicode)
 			if err != nil {
 				return lnk, err
 			}
 		}
 
-		if lnk.LinkInfoHeaderSize > 32 {
+		if linkInfoHeaderSize > 32 {
 			err = binary.Read(file, endianness, &lnk.CommonPathSuffixOffsetUnicode)
 			if err != nil {
 				return lnk, err
